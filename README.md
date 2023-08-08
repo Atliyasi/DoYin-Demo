@@ -23,17 +23,17 @@
 
 1.  目录构建
 
-   ├─Controller //控制层
-   ├─Dao  //数据层
-   ├─Middleware  //中间件层处理认证解析Token处理上文信息，为提供下文所需要的信息
-   ├─public  //静态资源
-   │  ├─mov  //视频资源
-   │  └─pic  //封面图片资源
-   ├─Service  //业务逻辑层
-   │  ├─favorite
-   │  ├─publish
-   │  └─user
-   └─Util  //自定义工具函数
+   ├─Controller //控制层 <br />
+   ├─Dao  //数据层 <br />
+   ├─Middleware  //中间件层处理认证解析Token处理上文信息，为提供下文所需要的信息 <br />
+   ├─public  //静态资源 <br />
+   │  ├─mov  //视频资源 <br />
+   │  └─pic  //封面图片资源 <br />
+   ├─Service  //业务逻辑层 <br />
+   │  ├─favorite <br />
+   │  ├─publish <br />
+   │  └─user <br />
+   └─Util  //自定义工具函数 <br />
 
 2.  导包
 
