@@ -33,9 +33,9 @@ func InitRouter() {
 		douYin.GET("/comment/list/", Controller.GetCommentList)
 	}
 	{
-		douYin.POST("/relation/action/", middleware.AuthMiddleWare())
-		douYin.GET("/relation/follow/list/", middleware.AuthMiddleWare())
-		douYin.GET("/relation/follower/list/", middleware.AuthMiddleWare())
+		douYin.POST("/relation/action/", middleware.AuthMiddleWare(), Controller.Relation)
+		douYin.GET("/relation/follow/list/", middleware.AuthMiddleWare(), Controller.Follow)
+		douYin.GET("/relation/follower/list/", middleware.AuthMiddleWare(), Controller.Follower)
 	}
 	PORT := "8080"
 	//启动服务
