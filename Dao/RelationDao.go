@@ -220,3 +220,17 @@ func (*RelationDao) FollowerList(id int) ([]VideoUser, error) {
 	}
 	return videoUserList, nil
 }
+
+func (*RelationDao) FollowById(userId int, toUserId int) bool {
+	var relation Relation
+	if err := GetDB().Where("user_id_one=?", userId).Where("user_id_two=?", toUserId).Or("user_id_one=?", toUserId).Where("user_id_two=?", userId).First(&relation).Error; err != nil {
+		return false
+	}
+	if relation.UserIdOne == userId && relation.Forward == true {
+		return true
+	}
+	if relation.UserIdTwo == userId && relation.Reverse == true {
+		return true
+	}
+	return false
+}

@@ -73,6 +73,7 @@ func (this *VideoDao) GetVideoList(userId int) []VideoList {
 		videoUser := this.GetVideoUser(videoInfo.Author)
 		//fmt.Println("NewFavoriteDao().FindFavoriteByUserIdByVideoId(userId, int(videoInfo.ID)): ", NewFavoriteDao().FindFavoriteByUserIdByVideoId(userId, int(videoInfo.ID)))
 		//fmt.Println("userId: ", userId, "videoInfo.ID: ", videoInfo.ID)
+		videoUser.IsFollow = NewRelationDao().FollowById(userId, int(videoUser.Id))
 		videos = append(videos, VideoList{
 			Id:            int64(videoInfo.ID),
 			Author:        *videoUser,
