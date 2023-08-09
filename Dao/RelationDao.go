@@ -1,6 +1,7 @@
 package Dao
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"sync"
 )
@@ -50,6 +51,7 @@ func (*RelationDao) CreateRelation(userIdOne int, userIdTwo int) error {
 		}
 		return nil
 	}
+	fmt.Println("relation.UserIdOne: ", relation.UserIdOne, ", userIdOne: ", userIdOne)
 	if relation.UserIdOne == userIdOne {
 		relation.Forward = true
 		if err := tx.Save(relation).Error; err != nil {
@@ -68,10 +70,10 @@ func (*RelationDao) CreateRelation(userIdOne int, userIdTwo int) error {
 			tx.Rollback()
 			return err
 		}
-		if err := addFollowCount(userIdTwo, tx, 1); err != nil {
+		if err := addFollowCount(userIdOne, tx, 1); err != nil {
 			return err
 		}
-		if err := addFollowerCount(userIdOne, tx, 1); err != nil {
+		if err := addFollowerCount(userIdTwo, tx, 1); err != nil {
 			return err
 		}
 	}
@@ -108,10 +110,10 @@ func (*RelationDao) CancelRelation(userIdOne int, userIdTwo int) error {
 			tx.Rollback()
 			return err
 		}
-		if err := addFollowCount(userIdTwo, tx, -1); err != nil {
+		if err := addFollowCount(userIdOne, tx, -1); err != nil {
 			return err
 		}
-		if err := addFollowerCount(userIdOne, tx, -1); err != nil {
+		if err := addFollowerCount(userIdTwo, tx, -1); err != nil {
 			return err
 		}
 	}
