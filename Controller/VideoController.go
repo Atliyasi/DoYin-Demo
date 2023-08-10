@@ -17,17 +17,7 @@ type FeedResponse struct {
 // Feed same demo mov list for every request
 func Feed(c *gin.Context) {
 	token := c.Query("token")
-	_, claims, err := middleware.ParseToken(token)
-	if err != nil {
-		c.JSON(http.StatusOK, FeedResponse{
-			Response: Response{
-				StatusCode: 0,
-				StatusMsg:  "请求成功",
-			},
-			VideoList: Dao.NewVideDao().GetVideoList(0),
-			NextTime:  time.Now().Unix(),
-		})
-	}
+	_, claims, _ := middleware.ParseToken(token)
 	c.JSON(http.StatusOK, FeedResponse{
 		Response: Response{
 			StatusCode: 0,

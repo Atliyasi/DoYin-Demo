@@ -22,11 +22,11 @@ func InitRouter() {
 	}
 	{
 		douYin.POST("/publish/action/", middleware.AuthMiddleWare(), Controller.PublishAction)
-		douYin.GET("/publish/list/", middleware.AuthMiddleWare(), Controller.PublishList)
+		douYin.GET("/publish/list/", Controller.PublishList)
 	}
 	{
 		douYin.POST("/favorite/action/", middleware.AuthMiddleWare(), Controller.Upvote)
-		douYin.GET("/favorite/list/", middleware.AuthMiddleWare(), Controller.FavoriteList)
+		douYin.GET("/favorite/list/", Controller.FavoriteList)
 	}
 	{
 		douYin.POST("/comment/action/", middleware.AuthMiddleWare(), Controller.HandleComment)
@@ -36,6 +36,7 @@ func InitRouter() {
 		douYin.POST("/relation/action/", middleware.AuthMiddleWare(), Controller.Relation)
 		douYin.GET("/relation/follow/list/", middleware.AuthMiddleWare(), Controller.Follow)
 		douYin.GET("/relation/follower/list/", middleware.AuthMiddleWare(), Controller.Follower)
+		douYin.GET("/relation/friend/list/", middleware.AuthMiddleWare(), Controller.Friend)
 	}
 	PORT := "8080"
 	//启动服务

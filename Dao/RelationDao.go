@@ -30,16 +30,17 @@ func NewRelationDao() *RelationDao {
 func (*RelationDao) CreateRelation(userIdOne int, userIdTwo int) error {
 	db := GetDB()
 	tx := db.Begin()
-	var relation Relation
+	var relation *Relation
 	if err := tx.Where("user_id_one=?", userIdOne).Where("user_id_two=?", userIdTwo).Or("user_id_one=?", userIdTwo).Where("user_id_two=?", userIdOne).First(&relation).Error; err != nil {
-		relation = Relation{
+		fmt.Println("进入error")
+		relation = &Relation{
 			Model:     gorm.Model{},
 			UserIdOne: userIdOne,
 			UserIdTwo: userIdTwo,
 			Forward:   true,
 			Reverse:   false,
 		}
-		if err := tx.Create(&relation).Error; err != nil {
+		if err := tx.Create(relation).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
@@ -47,6 +48,9 @@ func (*RelationDao) CreateRelation(userIdOne int, userIdTwo int) error {
 			return err
 		}
 		if err := addFollowerCount(userIdTwo, tx, 1); err != nil {
+			return err
+		}
+		if err := tx.Commit().Error; err != nil {
 			return err
 		}
 		return nil
@@ -223,16 +227,50 @@ func (*RelationDao) FollowerList(id int) ([]VideoUser, error) {
 	return videoUserList, nil
 }
 
-func (*RelationDao) FollowById(userId int, toUserId int) bool {
-	var relation Relation
-	if err := GetDB().Where("user_id_one=?", userId).Where("user_id_two=?", toUserId).Or("user_id_one=?", toUserId).Where("user_id_two=?", userId).First(&relation).Error; err != nil {
-		return false
+func (*RelationDao) FollowById(userId int) []Relation {
+	var relation []Relation
+	if err := GetDB().Where("user_id_one=? AND forward=? OR user_id_two=? AND reverse=?", userId, true, userId, true).Find(&relation).Error; err != nil {
+		return nil
 	}
-	if relation.UserIdOne == userId && relation.Forward == true {
-		return true
+	return relation
+}
+
+// FriendList 互关为朋友
+func (*RelationDao) FriendList(userId int) ([]VideoUser, error) {
+	db := GetDB()
+	tx := db.Begin()
+	var relations []Relation
+	if err := tx.Where("forward = ? AND reverse = ? AND (user_id_one = ? OR user_id_two = ?)", true, true, userId, userId).Find(&relations).Error; err != nil {
+		tx.Rollback()
+		return nil, err
 	}
-	if relation.UserIdTwo == userId && relation.Reverse == true {
-		return true
+	var videoUserList []VideoUser
+	var wg sync.WaitGroup
+	var mutex sync.Mutex
+	wg.Add(len(relations))
+	for _, relation := range relations {
+		go func(relation Relation) {
+			defer wg.Done()
+			var userToFetch int
+			if relation.UserIdOne == userId {
+				userToFetch = relation.UserIdTwo
+			} else {
+				userToFetch = relation.UserIdOne
+			}
+			var videoUser VideoUser
+			if err := tx.Where("id = ?", userToFetch).First(&videoUser).Error; err != nil {
+				tx.Rollback()
+				return
+			}
+			mutex.Lock()
+			videoUserList = append(videoUserList, videoUser)
+			mutex.Unlock()
+		}(relation)
 	}
-	return false
+	wg.Wait()
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	return videoUserList, nil
 }

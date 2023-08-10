@@ -1,6 +1,7 @@
 package Dao
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"sync"
 	"time"
@@ -64,29 +65,55 @@ func (*VideoDao) GetVideoUser(id int64) *VideoUser {
 func (this *VideoDao) GetVideoList(userId int) []VideoList {
 	var video []Video
 	err := GetDB().Find(&video).Error
-	//fmt.Println(video)
 	if err != nil {
 		return nil
 	}
 	var videos []VideoList
+	favoriteList, err := NewFavoriteDao().FindFavoritesByUserId(userId)
+	if err != nil {
+		return nil
+	}
+	favorites := make(map[int]bool)
+	for _, fav := range favoriteList {
+		favorites[fav.VideoId] = true
+	}
+	follows := make(map[int]bool)
+	relations := NewRelationDao().FollowById(userId)
+	var lock sync.Mutex
+	var wg sync.WaitGroup
+	wg.Add(len(relations))
+	for _, relation := range relations {
+		go func(relation Relation) {
+			defer wg.Done()
+			var userToFetch int
+			if relation.UserIdOne == userId {
+				userToFetch = relation.UserIdTwo
+			} else {
+				userToFetch = relation.UserIdOne
+			}
+			lock.Lock()
+			follows[userToFetch] = true
+			lock.Unlock()
+		}(relation)
+	}
+	wg.Wait()
 	for _, videoInfo := range video {
 		videoUser := this.GetVideoUser(videoInfo.Author)
-		//fmt.Println("NewFavoriteDao().FindFavoriteByUserIdByVideoId(userId, int(videoInfo.ID)): ", NewFavoriteDao().FindFavoriteByUserIdByVideoId(userId, int(videoInfo.ID)))
-		//fmt.Println("userId: ", userId, "videoInfo.ID: ", videoInfo.ID)
-		videoUser.IsFollow = NewRelationDao().FollowById(userId, int(videoUser.Id))
+		videoUser.IsFollow = follows[int(videoUser.Id)]
 		videos = append(videos, VideoList{
 			Id:            int64(videoInfo.ID),
 			Author:        *videoUser,
-			PlayUrl:       "http://172.16.2.131:8080/public/mov/" + videoInfo.PlayUrl,
-			CoverUrl:      "http://172.16.2.131:8080/public/pic/" + videoInfo.CoverUrl,
+			PlayUrl:       fmt.Sprintf("http://172.16.2.131:8080/public/mov/%s", videoInfo.PlayUrl),
+			CoverUrl:      fmt.Sprintf("http://172.16.2.131:8080/public/pic/%s", videoInfo.CoverUrl),
 			FavoriteCount: videoInfo.FavoriteCount,
 			CommentCount:  videoInfo.CommentCount,
-			IsFavorite:    NewFavoriteDao().FindFavoriteByUserIdByVideoId(userId, int(videoInfo.ID)),
+			IsFavorite:    favorites[int(videoInfo.ID)],
 			Title:         videoInfo.Title,
 		})
 	}
 	return videos
 }
+
 func (this *VideoDao) GetVideoListById(id int) []VideoList {
 	var video []Video
 	err := GetDB().Find(&video, "author=?", id).Error
@@ -100,8 +127,8 @@ func (this *VideoDao) GetVideoListById(id int) []VideoList {
 		videos = append(videos, VideoList{
 			Id:            int64(videoInfo.ID),
 			Author:        *videoUser,
-			PlayUrl:       "http://172.16.2.131:8080/public/mov/" + videoInfo.PlayUrl,
-			CoverUrl:      "http://172.16.2.131:8080/public/pic/" + videoInfo.CoverUrl,
+			PlayUrl:       fmt.Sprintf("http://172.16.2.131:8080/public/mov/%s", videoInfo.PlayUrl),
+			CoverUrl:      fmt.Sprintf("http://172.16.2.131:8080/public/pic/%s", videoInfo.CoverUrl),
 			FavoriteCount: videoInfo.FavoriteCount,
 			CommentCount:  videoInfo.CommentCount,
 			IsFavorite:    videoInfo.IsFavorite,
@@ -110,6 +137,7 @@ func (this *VideoDao) GetVideoListById(id int) []VideoList {
 	}
 	return videos
 }
+
 func (*VideoDao) GetVideoById(id int64) *Video {
 	var videoList Video
 	err := GetDB().Where("id=?", id).First(&videoList).Error

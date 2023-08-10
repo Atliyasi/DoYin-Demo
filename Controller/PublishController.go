@@ -40,7 +40,7 @@ func PublishAction(c *gin.Context) {
 		return
 	}
 	snapshotName := Util.GetSnapshot(saveFile, finalName)
-	fmt.Println(snapshotName)
+	//fmt.Println(snapshotName)
 	title := c.PostForm("title")
 	video := &Dao.Video{
 		Model:         gorm.Model{},
@@ -104,7 +104,7 @@ func PublishAction(c *gin.Context) {
 func PublishList(c *gin.Context) {
 	userId := c.Query("user_id")
 	id, _ := strconv.Atoi(userId)
-	fmt.Println("id: ", id)
+	//fmt.Println("id: ", id)
 	if id == 0 {
 		token := c.Query("token")
 		_, claims, err := middleware.ParseToken(token)

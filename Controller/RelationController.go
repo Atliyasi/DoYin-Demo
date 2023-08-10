@@ -22,7 +22,7 @@ func Relation(c *gin.Context) {
 	userId := userIdA.(int)
 	if actionType == "1" {
 		if err := relation.NewRelation(userId, toUserId).Relation(); err != nil {
-			fmt.Println("relation.NewRelation(userId, toUserId).Relation()")
+			//fmt.Println("relation.NewRelation(userId, toUserId).Relation()")
 			c.JSON(http.StatusBadRequest, Response{
 				StatusCode: 1,
 				StatusMsg:  err.Error(),
@@ -89,5 +89,28 @@ func Follower(c *gin.Context) {
 			StatusMsg:  "成功",
 		},
 		UserList: videoUserList,
+	})
+}
+
+func Friend(c *gin.Context) {
+	userIdS := c.Query("user_id")
+	userId, _ := strconv.Atoi(userIdS)
+	friendList, err := relation.FriendList(userId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, RelationResponse{
+			Response: Response{
+				StatusCode: 1,
+				StatusMsg:  err.Error(),
+			},
+			UserList: nil,
+		})
+	}
+	fmt.Println(friendList)
+	c.JSON(http.StatusOK, RelationResponse{
+		Response: Response{
+			StatusCode: 0,
+			StatusMsg:  "成功",
+		},
+		UserList: friendList,
 	})
 }
