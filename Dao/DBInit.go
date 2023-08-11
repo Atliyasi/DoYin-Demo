@@ -25,7 +25,7 @@ func InitDB() {
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
-	err = _db.AutoMigrate(&User{}, &VideoUser{}, &Video{}, &FavoriteList{}, &Comment{}, &Relation{})
+	err = _db.AutoMigrate(&User{}, &VideoUser{}, &Video{}, &FavoriteList{}, &Comment{}, &Relation{}, &Message{})
 	if err != nil {
 		fmt.Println("AutoMigrate, err: ", err)
 	}

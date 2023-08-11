@@ -38,6 +38,10 @@ func InitRouter() {
 		douYin.GET("/relation/follower/list/", middleware.AuthMiddleWare(), Controller.Follower)
 		douYin.GET("/relation/friend/list/", middleware.AuthMiddleWare(), Controller.Friend)
 	}
+	{
+		douYin.POST("/message/action/", middleware.AuthMiddleWare(), Controller.SendMessage)
+		douYin.GET("/message/chat/", middleware.AuthMiddleWare(), Controller.GetMessage)
+	}
 	PORT := "8080"
 	//启动服务
 	err := r.Run(":" + PORT)

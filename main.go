@@ -6,18 +6,18 @@ import (
 
 func main() {
 	Dao.InitDB()
-	
+
 	InitRouter()
 	//go Controller.NewUser(*db, *r)
 
 	// 插入单条数据
-	//user := User{Name: "陈海潇", Age: "21", Message: "654"}
+	//user := User{Name: "陈海潇", Age: "21", message: "654"}
 	//db.Create(&user)
 	// 插入多条数据
 	//users := []User{
-	//	{Name: "陈海潇1", Age: 21, Message: "6542"},
-	//	{Name: "陈海潇2", Age: 213, Message: "6541"},
-	//	{Name: "陈海潇3", Age: 214, Message: "6544"},
+	//	{Name: "陈海潇1", Age: 21, message: "6542"},
+	//	{Name: "陈海潇2", Age: 213, message: "6541"},
+	//	{Name: "陈海潇3", Age: 214, message: "6544"},
 	//}
 	//db.Create(&users)
 	//db.CreateInBatches(users, 100) // 设置分批添加数据，每批100条数据
