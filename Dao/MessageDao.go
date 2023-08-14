@@ -40,9 +40,9 @@ func (*MessageDao) CreateMessage(fromUserId int, toUserId int, content string, c
 	return nil
 }
 
-func (*MessageDao) GetMessageById(toUserId int, fromUserId int) ([]Message, error) {
+func (*MessageDao) GetMessageById(toUserId int, fromUserId int, newTime int64) ([]Message, error) {
 	var messageList []Message
-	if err := GetDB().Where("to_user_id=? AND from_user_id=? OR to_user_id=? AND from_user_id=?", toUserId, fromUserId, fromUserId, toUserId).Find(&messageList).Error; err != nil {
+	if err := GetDB().Where("(to_user_id=? AND from_user_id=? AND create_time > ?) OR (to_user_id=? AND from_user_id=? AND create_time > ?)", toUserId, fromUserId, newTime, fromUserId, toUserId, newTime).Order("create_time").Find(&messageList).Error; err != nil {
 		return nil, err
 	}
 	return messageList, nil

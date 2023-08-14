@@ -22,8 +22,8 @@ func SendMessage(fromUserId int, toUserId int, content string, createTime int64)
 }
 
 // GetMessageList 实现获取正确消息的功能
-func GetMessageList(userId int, toUserId int) ([]MessageYes, error) {
-	messageList, err := Dao.NewMessageDao().GetMessageById(toUserId, userId)
+func GetMessageList(userId int, toUserId int, newTime int64) ([]MessageYes, error) {
+	messageList, err := Dao.NewMessageDao().GetMessageById(toUserId, userId, newTime)
 	if err != nil {
 		return nil, err
 	}
